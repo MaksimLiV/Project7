@@ -9,18 +9,17 @@ import UIKit
 
 class ViewController: UITableViewController {
     var petitions = [Petition]()
-    // 2-ое задание добавил UIsearchBar
+    
     var filteredPetitions = [Petition]()
     var isSearching = false
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        // 1-ое задание, тут я создал кнопку Credits
+        
         let creditsButton = UIBarButtonItem(title: "Credits", style: .plain, target: self, action: #selector(showCredits))
         navigationItem.rightBarButtonItem = creditsButton
         
-        // 2-ое задание. Тут я указал настройки поиска
         let searchBar = UISearchBar()
         searchBar.delegate = self
         searchBar.placeholder = "Search petitions"
