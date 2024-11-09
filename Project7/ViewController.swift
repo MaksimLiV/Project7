@@ -24,10 +24,12 @@ class ViewController: UITableViewController {
         searchBar.sizeToFit()
         tableView.tableHeaderView = searchBar
         
-        performSelector(inBackground: #selector(fetchJSON), with: nil)
+        DispatchQueue.main.async {
+            self.fetchJSON()
+        }
     }
     
-    @objc func fetchJSON() {
+    func fetchJSON() {
         let urlString: String
         
         if navigationController?.tabBarItem.tag == 0 {
@@ -36,13 +38,22 @@ class ViewController: UITableViewController {
             urlString = "https://www.hackingwithswift.com/samples/petitions-2.json"
         }
         
+        DispatchQueue.global(qos: .background).async {
+            self.fetchJSON(from: urlString)
+        }
+    }
+    
+    func fetchJSON(from urlString: String) {
         if let url = URL(string: urlString) {
             if let data = try? Data(contentsOf: url) {
                 parse(json: data)
                 return
             }
         }
-        performSelector(onMainThread: #selector(showError), with: nil, waitUntilDone: false)
+        
+        DispatchQueue.main.async {
+            self.showError()
+        }
     }
     
     @objc func showError() {
@@ -60,7 +71,9 @@ class ViewController: UITableViewController {
                 self.tableView.reloadData()
             }
         } else {
-            performSelector(onMainThread: #selector(showError), with: nil, waitUntilDone: false)
+            DispatchQueue.main.async {
+                self.showError()
+            }
         }
     }
     
@@ -93,10 +106,19 @@ extension ViewController: UISearchBarDelegate {
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
         if searchText.isEmpty {
             isSearching = false
+            DispatchQueue.main.async {
+                self.tableView.reloadData()
+            }
         } else {
             isSearching = true
-            filteredPetitions = petitions.filter { $0.title.lowercased().contains(searchText.lowercased()) }
+            DispatchQueue.global(qos: .background).async {
+                self.filteredPetitions = self.petitions.filter {
+                    $0.title.lowercased().contains(searchText.lowercased())
+                }
+                DispatchQueue.main.async {
+                    self.tableView.reloadData()
+                }
+            }
         }
-        tableView.reloadData()
     }
 }
