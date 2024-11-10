@@ -24,9 +24,7 @@ class ViewController: UITableViewController {
         searchBar.sizeToFit()
         tableView.tableHeaderView = searchBar
         
-        DispatchQueue.main.async {
-            self.fetchJSON()
-        }
+        fetchJSON()
     }
     
     func fetchJSON() {
@@ -39,20 +37,13 @@ class ViewController: UITableViewController {
         }
         
         DispatchQueue.global(qos: .background).async {
-            self.fetchJSON(from: urlString)
-        }
-    }
-    
-    func fetchJSON(from urlString: String) {
-        if let url = URL(string: urlString) {
-            if let data = try? Data(contentsOf: url) {
-                parse(json: data)
-                return
+            if let url = URL(string: urlString), let data = try? Data(contentsOf: url) {
+                self.parse(json: data)
+            } else {
+                DispatchQueue.main.async {
+                    self.showError()
+                }
             }
-        }
-        
-        DispatchQueue.main.async {
-            self.showError()
         }
     }
     
